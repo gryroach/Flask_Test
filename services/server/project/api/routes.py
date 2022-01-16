@@ -6,7 +6,7 @@ from .. import db
 from .schemas import DocumentsSchema, RightsSchema
 
 from marshmallow import ValidationError
-from sqlalchemy import engine
+from sqlalchemy import engine, func
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 document_schema = DocumentsSchema()
@@ -58,7 +58,7 @@ def document_update(id):
         db.session.add(document)
         status = 'created'
     db.session.commit()
-    return jsonify({'message': f'Document {id} {status}!'})
+    return jsonify({'message': f'Document {status}!'})
 
 
 @app.route('/document/<id>/delete', methods=['DELETE'])
@@ -88,8 +88,8 @@ def right_add():
         right = right_schema.load(data, session=sess)
     except ValidationError:
         return jsonify({'message': 'data is not valid!'})
-    ex_docs = [str(item.id) for item in Documents.query.all()]
 
+    ex_docs = [str(item.id) for item in Documents.query.all()]
     if post_data.get('document_id') not in ex_docs:
         return jsonify({'message': 'document is not exist!'})
 
@@ -104,3 +104,34 @@ def rights():
     return jsonify(response)
 
 
+@app.route('/rights/<id>/update', methods=['PUT'])
+def right_update(id):
+    put_data = request.get_json()
+    inserted_at = str(datetime.now())
+    updated_at = str(datetime.now())
+    data = {'name': put_data.get('name'), 'text': put_data.get('text'),
+            'rights_from': put_data.get('rights_from'), 'rights_to': put_data.get('rights_to'),
+            'inserted_at': inserted_at, 'updated_at': updated_at, 'document_id': put_data.get('document_id')}
+    sess = scoped_session(sessionmaker(bind=engine))
+    try:
+        right = right_schema.load(data, session=sess)
+    except ValidationError:
+        return jsonify({'message': 'data is not valid!'})
+
+    ex_docs = [str(item.id) for item in Documents.query.all()]
+    if put_data.get('document_id') not in ex_docs:
+        return jsonify({'message': 'document is not exist!'})
+
+    inst = Rights.query.get(id)
+    if inst:
+        inst.name = right.name
+        inst.text = right.text
+        inst.rights_from = right.rights_from
+        inst.rights_to = right.rights_to
+        inst.updated_at = updated_at
+        status = 'updated'
+    else:
+        db.session.add(right)
+        status = 'created'
+    db.session.commit()
+    return jsonify({'message': f'Right {status}!'})
