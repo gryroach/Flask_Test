@@ -78,3 +78,9 @@ def documents_delete(id):
     db.session.delete(inst)
     db.session.commit()
     return jsonify({'message': f'Document {id} deleted!'})
+
+
+@app.route('/document/<id>', methods=['GET'])
+def document_get(id):
+    inst = Documents.query.get_or_404(id)
+    return jsonify(inst.to_json())

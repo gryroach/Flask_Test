@@ -45,13 +45,14 @@ class Rights(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now())
     document_id = db.Column(db.Integer, db.ForeignKey('documents.id'), nullable=False)
 
-    def __init__(self, name, text, rights_from, rights_to, inserted_at, updated_at):
+    def __init__(self, name, text, document_id, rights_from, rights_to, inserted_at, updated_at):
         self.name = name
         self.text = text
         self.rights_from = rights_from
         self.rights_to = rights_to
         self.inserted_at = inserted_at
         self.updated_at = updated_at
+        self.document_id = document_id
 
     def __str__(self):
         return f"<rights {self.id}>"
