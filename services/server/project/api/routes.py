@@ -13,20 +13,9 @@ document_schema = DocumentsSchema()
 right_schema = RightsSchema()
 
 
-@app.route('/document/', methods=['GET', 'POST'])
+@app.route('/document', methods=['GET'])
 def documents():
-    response = {'status': 'success'}
-    if request.method == 'POST':
-        post_data = request.get_json()
-        name = post_data.get('name')
-        text = post_data.get('text')
-        inserted_at = datetime.now()
-        updated_at = datetime.now()
-        db.session.add(Documents(name=name, text=text, inserted_at=inserted_at, updated_at=updated_at))
-        db.session.commit()
-        response['message'] = 'Document added!'
-    else:
-        response['documents'] = [document.to_json() for document in Documents.query.all()]
+    response = [document.to_json() for document in Documents.query.all()]
     return jsonify(response)
 
 
