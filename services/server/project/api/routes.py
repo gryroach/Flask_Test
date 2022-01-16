@@ -135,3 +135,11 @@ def right_update(id):
         status = 'created'
     db.session.commit()
     return jsonify({'message': f'Right {status}!'})
+
+
+@app.route('/rights/<id>/delete', methods=['DELETE'])
+def right_delete(id):
+    inst = Rights.query.get_or_404(id)
+    db.session.delete(inst)
+    db.session.commit()
+    return jsonify({'message': f'Right {id} deleted!'})
