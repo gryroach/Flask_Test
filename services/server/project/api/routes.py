@@ -20,7 +20,7 @@ def documents():
 
 
 @app.route('/document/add', methods=['POST'])
-def documents_add():
+def document_add():
     post_data = request.get_json()
     inserted_at = str(datetime.now())
     updated_at = str(datetime.now())
@@ -37,7 +37,7 @@ def documents_add():
 
 
 @app.route('/document/<id>/update', methods=['PUT'])
-def documents_update(id):
+def document_update(id):
     put_data = request.get_json()
     inserted_at = str(datetime.now())
     updated_at = str(datetime.now())
@@ -62,7 +62,7 @@ def documents_update(id):
 
 
 @app.route('/document/<id>/delete', methods=['DELETE'])
-def documents_delete(id):
+def document_delete(id):
     inst = Documents.query.get_or_404(id)
     db.session.delete(inst)
     db.session.commit()
@@ -73,3 +73,34 @@ def documents_delete(id):
 def document_get(id):
     inst = Documents.query.get_or_404(id)
     return jsonify(inst.to_json())
+
+
+@app.route('/rights/add', methods=['POST'])
+def right_add():
+    post_data = request.get_json()
+    inserted_at = str(datetime.now())
+    updated_at = str(datetime.now())
+    data = {'name': post_data.get('name'), 'text': post_data.get('text'),
+            'rights_from': post_data.get('rights_from'), 'rights_to': post_data.get('rights_to'),
+            'inserted_at': inserted_at, 'updated_at': updated_at, 'document_id': post_data.get('document_id')}
+    sess = scoped_session(sessionmaker(bind=engine))
+    try:
+        right = right_schema.load(data, session=sess)
+    except ValidationError:
+        return jsonify({'message': 'data is not valid!'})
+    ex_docs = [str(item.id) for item in Documents.query.all()]
+
+    if post_data.get('document_id') not in ex_docs:
+        return jsonify({'message': 'document is not exist!'})
+
+    db.session.add(right)
+    db.session.commit()
+    return jsonify({'message': 'Right added!'})
+
+
+@app.route('/rights', methods=['GET'])
+def rights():
+    response = [right.to_json() for right in Rights.query.all()]
+    return jsonify(response)
+
+

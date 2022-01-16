@@ -54,5 +54,17 @@ class Rights(db.Model):
         self.updated_at = updated_at
         self.document_id = document_id
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'text': self.text,
+            'rights_from': self.rights_from,
+            'rights_to': self.rights_to,
+            'inserted_at': self.inserted_at,
+            'updated_at': self.updated_at,
+            'document_id': self.document_id
+        }
+
     def __str__(self):
         return f"<rights {self.id}>"
