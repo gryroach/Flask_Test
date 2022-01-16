@@ -1,7 +1,4 @@
-import datetime
-
 from flask import current_app as app, request, jsonify
-
 
 from .models import Documents, Rights
 from datetime import datetime
@@ -36,11 +33,10 @@ def documents():
 @app.route('/document/add', methods=['POST'])
 def documents_add():
     post_data = request.get_json()
-    name = post_data.get('name')
-    text = post_data.get('text')
     inserted_at = str(datetime.now())
     updated_at = str(datetime.now())
-    data = {'name': name, 'text': text, 'inserted_at': inserted_at, 'updated_at': updated_at}
+    data = {'name': post_data.get('name'), 'text': post_data.get('text'),
+            'inserted_at': inserted_at, 'updated_at': updated_at}
     sess = scoped_session(sessionmaker(bind=engine))
     try:
         document = document_schema.load(data, session=sess)
@@ -51,13 +47,27 @@ def documents_add():
     return jsonify({'message': 'Document added!'})
 
 
-@app.route('/document/<id>/update', methods=['PUT', 'PATCH'])
+@app.route('/document/<id>/update', methods=['PUT'])
 def documents_update(id):
-    post_data = request.get_json()
-    name = post_data.get('name')
-    text = post_data.get('text')
-    inserted_at = datetime.now()
-    updated_at = datetime.now()
-    db.session.add(Documents(name=name, text=text, inserted_at=inserted_at, updated_at=updated_at))
+    put_data = request.get_json()
+    inserted_at = str(datetime.now())
+    updated_at = str(datetime.now())
+    data = {'name': put_data.get('name'), 'text': put_data.get('text'),
+            'inserted_at': inserted_at, 'updated_at': updated_at}
+    sess = scoped_session(sessionmaker(bind=engine))
+    try:
+        document = document_schema.load(data, session=sess)
+    except ValidationError:
+        return jsonify({'message': 'data is not valid!'})
+    inst = Documents.query.get(id)
+    if inst:
+        inst.name = document.name
+        inst.text = document.text
+        inst.updated_at = updated_at
+        status = 'updated'
+    else:
+        db.session.add(document)
+        status = 'created'
     db.session.commit()
-    return jsonify({'message': 'Document added!'})
+    return jsonify({'message': f'Document {id} {status}!'})
+
