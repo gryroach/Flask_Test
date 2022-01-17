@@ -1,23 +1,6 @@
-import pytest
-import os
 from manage import app
 
-# from project import create_app, db
-
-
 client = app.test_client()
-
-
-# @pytest.fixture
-# def app():
-#     app = create_app()
-#     app_settings = os.getenv('APP_SETTINGS')
-#     app.config.from_object(app_settings)
-#     with app.app_context():
-#         db.create_all()
-#         yield app
-#         db.drop_all()
-#         db.create_all()
 
 
 def test_post_document():

@@ -1,10 +1,8 @@
 from flask import current_app as app, request, jsonify, Response
-
 from .models import Documents, Rights
 from datetime import datetime
 from .. import db
 from .schemas import DocumentsSchema, RightsSchema
-
 from marshmallow import ValidationError
 from sqlalchemy import engine
 from sqlalchemy.orm import scoped_session, sessionmaker
