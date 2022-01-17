@@ -1,4 +1,4 @@
-from flask import current_app as app, request, jsonify
+from flask import current_app as app, request, jsonify, Response
 
 from .models import Documents, Rights
 from datetime import datetime
@@ -6,7 +6,7 @@ from .. import db
 from .schemas import DocumentsSchema, RightsSchema
 
 from marshmallow import ValidationError
-from sqlalchemy import engine, func
+from sqlalchemy import engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 document_schema = DocumentsSchema()
@@ -30,7 +30,7 @@ def document_add():
     try:
         document = document_schema.load(data, session=sess)
     except ValidationError:
-        return jsonify({'message': 'data is not valid!'})
+        return Response('data is not valid!', status=400)
     db.session.add(document)
     db.session.commit()
     return jsonify({'message': 'Document added!'})
@@ -47,7 +47,7 @@ def document_update(id):
     try:
         document = document_schema.load(data, session=sess)
     except ValidationError:
-        return jsonify({'message': 'data is not valid!'})
+        return Response('data is not valid!', status=400)
     inst = Documents.query.get(id)
     if inst:
         inst.name = document.name
@@ -87,7 +87,7 @@ def right_add():
     try:
         right = right_schema.load(data, session=sess)
     except ValidationError:
-        return jsonify({'message': 'data is not valid!'})
+        return Response('data is not valid!', status=400)
 
     ex_docs = [str(item.id) for item in Documents.query.all()]
     if post_data.get('document_id') not in ex_docs:
@@ -116,7 +116,7 @@ def right_update(id):
     try:
         right = right_schema.load(data, session=sess)
     except ValidationError:
-        return jsonify({'message': 'data is not valid!'})
+        return Response('data is not valid!', status=400)
 
     ex_docs = [str(item.id) for item in Documents.query.all()]
     if put_data.get('document_id') not in ex_docs:
