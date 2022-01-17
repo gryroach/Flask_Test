@@ -24,8 +24,11 @@ def document_add():
     post_data = request.get_json()
     inserted_at = str(datetime.now())
     updated_at = str(datetime.now())
-    data = {'name': post_data.get('name'), 'text': post_data.get('text'),
-            'inserted_at': inserted_at, 'updated_at': updated_at}
+    try:
+        data = {'name': post_data.get('name'), 'text': post_data.get('text'),
+                'inserted_at': inserted_at, 'updated_at': updated_at}
+    except AttributeError:
+        return Response('Data is incorrect or missing!', status=400)
     sess = scoped_session(sessionmaker(bind=engine))
     try:
         document = document_schema.load(data, session=sess)
@@ -41,8 +44,11 @@ def document_update(id):
     put_data = request.get_json()
     inserted_at = str(datetime.now())
     updated_at = str(datetime.now())
-    data = {'name': put_data.get('name'), 'text': put_data.get('text'),
-            'inserted_at': inserted_at, 'updated_at': updated_at}
+    try:
+        data = {'name': put_data.get('name'), 'text': put_data.get('text'),
+                'inserted_at': inserted_at, 'updated_at': updated_at}
+    except AttributeError:
+        return Response('Data is incorrect or missing!', status=400)
     sess = scoped_session(sessionmaker(bind=engine))
     try:
         document = document_schema.load(data, session=sess)
@@ -80,9 +86,12 @@ def right_add():
     post_data = request.get_json()
     inserted_at = str(datetime.now())
     updated_at = str(datetime.now())
-    data = {'name': post_data.get('name'), 'text': post_data.get('text'),
-            'rights_from': post_data.get('rights_from'), 'rights_to': post_data.get('rights_to'),
-            'inserted_at': inserted_at, 'updated_at': updated_at, 'document_id': post_data.get('document_id')}
+    try:
+        data = {'name': post_data.get('name'), 'text': post_data.get('text'),
+                'rights_from': post_data.get('rights_from'), 'rights_to': post_data.get('rights_to'),
+                'inserted_at': inserted_at, 'updated_at': updated_at, 'document_id': post_data.get('document_id')}
+    except AttributeError:
+        return Response('Data is incorrect or missing!', status=400)
     sess = scoped_session(sessionmaker(bind=engine))
     try:
         right = right_schema.load(data, session=sess)
@@ -91,7 +100,7 @@ def right_add():
 
     ex_docs = [str(item.id) for item in Documents.query.all()]
     if post_data.get('document_id') not in ex_docs:
-        return jsonify({'message': 'document is not exist!'})
+        return Response('document is not exist!', status=400)
 
     db.session.add(right)
     db.session.commit()
@@ -109,9 +118,12 @@ def right_update(id):
     put_data = request.get_json()
     inserted_at = str(datetime.now())
     updated_at = str(datetime.now())
-    data = {'name': put_data.get('name'), 'text': put_data.get('text'),
-            'rights_from': put_data.get('rights_from'), 'rights_to': put_data.get('rights_to'),
-            'inserted_at': inserted_at, 'updated_at': updated_at, 'document_id': put_data.get('document_id')}
+    try:
+        data = {'name': put_data.get('name'), 'text': put_data.get('text'),
+                'rights_from': put_data.get('rights_from'), 'rights_to': put_data.get('rights_to'),
+                'inserted_at': inserted_at, 'updated_at': updated_at, 'document_id': put_data.get('document_id')}
+    except AttributeError:
+        return Response('Data is incorrect or missing!', status=400)
     sess = scoped_session(sessionmaker(bind=engine))
     try:
         right = right_schema.load(data, session=sess)
@@ -120,7 +132,7 @@ def right_update(id):
 
     ex_docs = [str(item.id) for item in Documents.query.all()]
     if put_data.get('document_id') not in ex_docs:
-        return jsonify({'message': 'document is not exist!'})
+        return Response('document is not exist!', status=400)
 
     inst = Rights.query.get(id)
     if inst:
